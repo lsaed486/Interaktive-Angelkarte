@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interaktive Angelkarte für den Kreis Pinneberg und Umgebung">
+    <title>Interaktive Angelkarte Pinneberg</title>
+    <!-- Mapbox CSS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #3B5998;
+            padding: 15px 0;
+            color: white;
+            text-align: center;
+        }
+
+        #map {
+            width: 100%;
+            height: 600px;
+            margin-top: 20px;
+        }
+
+        .legend {
+            background-color: white;
+            padding: 10px;
+            position: absolute;
+            bottom: 30px;
+            left: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .legend h3 {
+            margin: 0 0 10px;
+        }
+
+        .legend div {
+            display: flex;
+            align-items: center;
+        }
+
+        .legend div span {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .legend .lake {
+            background-color: #0077BE;
+        }
+
+        .legend .river {
+            background-color: #00BE77;
+        }
+
+        .legend .pond {
+            background-color: #BE7700;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Interaktive Angelkarte Pinneberg</h1>
+        <p>Wähle ein Gewässer aus, um mehr Informationen zu erhalten.</p>
+    </header>
+
+    <div id="map"></div>
+
+    <!-- Legende für die verschiedenen Gewässerarten -->
+    <div class="legend">
+        <h3>Gewässerarten</h3>
+        <div><span class="lake"></span> Seen</div>
+        <div><span class="river"></span> Flüsse</div>
+        <div><span class="pond"></span> Teiche/Forellenteiche</div>
+    </div>
+
+    <!-- Mapbox JS -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+    <script>
+        // API-Key von Mapbox einfügen
+        mapboxgl.accessToken = 'pk.eyJ1IjoibHNhZWQ0ODYiLCJhIjoiY20yNmxsNGZkMHhqbTJrc2o0dWg1OTRuYyJ9.iwQkgt5FL8kPQgpBozsakQ';
+
+        // Karte initialisieren
+        var map = new mapboxgl.Map({
+            container: 'map', // ID des HTML-Elements für die Karte
+            style: 'mapbox://styles/mapbox/streets-v11', // Kartenstil
+            center: [9.7945, 53.6617], // Koordinaten des Zentrums (Pinneberg)
+            zoom: 9 // Start-Zoom-Level
+        });
+
+        // Gewässerdaten (hier ein Beispiel, kann erweitert werden)
+        var gewaesser = [
+            {
+                "name": "Pinneberger See",
+                "typ": "See",
+                "verein": "Angelverein Pinneberg",
+                "koordinaten": [9.7958, 53.6621]
+            },
+            {
+                "name": "Fluss Krückau",
+                "typ": "Fluss",
+                "verein": "Fischereigenossenschaft Krückau",
+                "koordinaten": [9.8123, 53.6805]
+            },
+            {
+                "name": "Forellenteich Quickborn",
+                "typ": "Teich",
+                "verein": "Fischerverein Quickborn",
+                "koordinaten": [9.8750, 53.7370]
+            }
+        ];
+
+        // Funktion zur Festlegung der Markerfarbe basierend auf dem Gewässertyp
+        function getColorByType(typ) {
+            switch (typ) {
+                case 'See': return '#0077BE'; // Blau für Seen
+                case 'Fluss': return '#00BE77'; // Grün für Flüsse
+                case 'Teich': return '#BE7700'; // Braun für Teiche
+                default: return '#000000'; // Standardfarbe Schwarz
+            }
+        }
+
+        // Marker für jedes Gewässer hinzufügen
+        gewaesser.forEach(function(g) {
+            // Marker erstellen
+            var el = document.createElement('div');
+            el.className = 'marker';
+            el.style.backgroundColor = getColorByType(g.typ);
+            el.style.width = '20px';
+            el.style.height = '20px';
+            el.style.borderRadius = '50%';
+
+            // Marker zu Map hinzufügen
+            new mapboxgl.Marker(el)
+                .setLngLat(g.koordinaten)
+                .setPopup(new mapboxgl.Popup({ offset: 25 }) // Popup hinzufügen
+                    .setHTML('<h3>' + g.name + '</h3><p>' + g.typ + '</p><p>' + g.verein + '</p>'))
+                .addTo(map);
+        });
+
+    </script>
+
+</body>
+</html>
