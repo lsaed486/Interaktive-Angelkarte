@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Interaktive Angelkarte für den Kreis Pinneberg und Umgebung">
     <title>Interaktive Angelkarte Pinneberg</title>
+    <!-- Mapbox CSS -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
     <style>
         body {
@@ -12,17 +13,20 @@
             margin: 0;
             padding: 0;
         }
+
         header {
             background-color: #3B5998;
             padding: 15px 0;
             color: white;
             text-align: center;
         }
+
         #map {
             width: 100%;
             height: 600px;
             margin-top: 20px;
         }
+
         .legend {
             background-color: white;
             padding: 10px;
@@ -32,22 +36,34 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
         .legend h3 {
             margin: 0 0 10px;
         }
+
         .legend div {
             display: flex;
             align-items: center;
         }
+
         .legend div span {
             width: 20px;
             height: 20px;
             display: inline-block;
             margin-right: 10px;
         }
-        .legend .lake { background-color: #0077BE; }
-        .legend .river { background-color: #00BE77; }
-        .legend .pond { background-color: #BE7700; }
+
+        .legend .lake {
+            background-color: #0077BE;
+        }
+
+        .legend .river {
+            background-color: #00BE77;
+        }
+
+        .legend .pond {
+            background-color: #BE7700;
+        }
     </style>
 </head>
 <body>
@@ -59,6 +75,7 @@
 
     <div id="map"></div>
 
+    <!-- Legende für die verschiedenen Gewässerarten -->
     <div class="legend">
         <h3>Gewässerarten</h3>
         <div><span class="lake"></span> Seen</div>
@@ -66,111 +83,61 @@
         <div><span class="pond"></span> Teiche/Forellenteiche</div>
     </div>
 
+    <!-- Mapbox JS -->
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
     <script>
+        // API-Key von Mapbox einfügen
         mapboxgl.accessToken = 'pk.eyJ1IjoibHNhZWQ0ODYiLCJhIjoiY20yNmxsNGZkMHhqbTJrc2o0dWg1OTRuYyJ9.iwQkgt5FL8kPQgpBozsakQ';
 
+        // Karte initialisieren
         var map = new mapboxgl.Map({
-            container: 'map',
-            style: 'mapbox://styles/mapbox/streets-v11',
-            center: [9.7945, 53.6617],
-            zoom: 9
+            container: 'map', // ID des HTML-Elements für die Karte
+            style: 'mapbox://styles/mapbox/streets-v11', // Kartenstil
+            center: [9.7945, 53.6617], // Koordinaten des Zentrums (Pinneberg)
+            zoom: 9 // Start-Zoom-Level
         });
 
+        // Gewässerdaten der Angelvereine
         var gewaesser = [
             {
-                "name": "Alsensee",
-                "typ": "See",
-                "verein": "SAV Rellau",
-                "koordinaten": [9.7600, 53.6510]
+                "name": "Hasenmoor",
+                "typ": "Moorsee",
+                "verein": "SAV Rellau e.V.",
+                "koordinaten": [9.8303, 53.6859]
+            },
+            {
+                "name": "Pinnau",
+                "typ": "Fluss",
+                "verein": "SAV Elmshorn-Barmstedt e.V.",
+                "koordinaten": [9.7121, 53.7033]
             },
             {
                 "name": "Appener See",
                 "typ": "See",
-                "verein": "SAV Rellau",
-                "koordinaten": [9.8295, 53.6462]
+                "verein": "SAV Moorrege e.V.",
+                "koordinaten": [9.7895, 53.6512]
             },
             {
-                "name": "Diestel 1",
-                "typ": "Restwasser",
-                "verein": "SAV Rellau",
-                "koordinaten": [9.8100, 53.6520]
-            },
-            {
-                "name": "Diestel 2",
-                "typ": "Restwasser",
-                "verein": "SAV Rellau",
-                "koordinaten": [9.8110, 53.6500]
-            },
-            {
-                "name": "Freudenthaler See",
-                "typ": "See",
-                "verein": "SAV Rellau",
-                "koordinaten": [9.7600, 53.6700]
-            },
-            {
-                "name": "Funkturmsee",
-                "typ": "See",
-                "verein": "SAV Rellau",
-                "koordinaten": [9.7920, 53.6720]
-            },
-            {
-                "name": "Hasenmoor",
-                "typ": "Moorsee",
-                "verein": "SAV Rellau",
-                "koordinaten": [9.7550, 53.6830]
-            },
-            {
-                "name": "Heidgraben",
-                "typ": "Graben",
-                "verein": "SAV Rellau",
-                "koordinaten": [9.7720, 53.6600]
-            },
-            {
-                "name": "Kieskuhle",
-                "typ": "Baggersee",
-                "verein": "SAV Rellau",
-                "koordinaten": [9.8120, 53.6750]
-            },
-            {
-                "name": "Moorkuhle",
-                "typ": "Moorsee",
-                "verein": "SAV Rellau",
-                "koordinaten": [9.7950, 53.6810]
-            },
-            {
-                "name": "Ossenpadd",
-                "typ": "Teich",
-                "verein": "SAV Rellau",
-                "koordinaten": [9.7560, 53.6750]
-            },
-            {
-                "name": "Teich",
-                "typ": "Teich",
-                "verein": "SAV Rellau",
-                "koordinaten": [9.7600, 53.6900]
-            },
-            {
-                "name": "Teufelssee",
-                "typ": "See",
-                "verein": "SAV Rellau",
-                "koordinaten": [9.7540, 53.6700]
+                "name": "Düpenau",
+                "typ": "Fluss",
+                "verein": "SAV Moorrege e.V.",
+                "koordinaten": [9.8031, 53.6670]
             }
         ];
 
+        // Funktion zur Festlegung der Markerfarbe basierend auf dem Gewässertyp
         function getColorByType(typ) {
             switch (typ) {
-                case 'See': return '#0077BE'; 
-                case 'Fluss': return '#00BE77'; 
-                case 'Teich': return '#BE7700'; 
-                case 'Restwasser': return '#A0A0A0'; 
-                case 'Moorsee': return '#B0B0B0'; 
-                case 'Baggersee': return '#FFD700'; 
-                default: return '#000000'; 
+                case 'See': return '#0077BE'; // Blau für Seen
+                case 'Fluss': return '#00BE77'; // Grün für Flüsse
+                case 'Moorsee': return '#BE7700'; // Braun für Moorseen
+                default: return '#000000'; // Standardfarbe Schwarz
             }
         }
 
+        // Marker für jedes Gewässer hinzufügen
         gewaesser.forEach(function(g) {
+            // Marker erstellen
             var el = document.createElement('div');
             el.className = 'marker';
             el.style.backgroundColor = getColorByType(g.typ);
@@ -178,9 +145,10 @@
             el.style.height = '20px';
             el.style.borderRadius = '50%';
 
+            // Marker zu Map hinzufügen
             new mapboxgl.Marker(el)
                 .setLngLat(g.koordinaten)
-                .setPopup(new mapboxgl.Popup({ offset: 25 })
+                .setPopup(new mapboxgl.Popup({ offset: 25 }) // Popup hinzufügen
                     .setHTML('<h3>' + g.name + '</h3><p>' + g.typ + '</p><p>' + g.verein + '</p>'))
                 .addTo(map);
         });
@@ -189,4 +157,5 @@
 
 </body>
 </html>
+
 
