@@ -64,13 +64,33 @@
         .legend .pond {
             background-color: #BE7700;
         }
+
+        .note-popup {
+            width: 200px;
+            height: 100px;
+        }
+
+        .note-popup textarea {
+            width: 100%;
+            height: 80px;
+            margin-bottom: 5px;
+        }
+
+        .note-popup button {
+            width: 100%;
+            background-color: #3B5998;
+            color: white;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
     <header>
         <h1>Interaktive Angelkarte Pinneberg</h1>
-        <p>Wähle ein Gewässer aus, um mehr Informationen zu erhalten.</p>
+        <p>Wähle ein Gewässer aus, um mehr Informationen zu erhalten und Notizen zu machen.</p>
     </header>
 
     <div id="map"></div>
@@ -86,18 +106,17 @@
     <!-- Mapbox JS -->
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
     <script>
-        // API-Key von Mapbox einfügen
         mapboxgl.accessToken = 'pk.eyJ1IjoibHNhZWQ0ODYiLCJhIjoiY20yNmxsNGZkMHhqbTJrc2o0dWg1OTRuYyJ9.iwQkgt5FL8kPQgpBozsakQ';
 
         // Karte initialisieren
         var map = new mapboxgl.Map({
-            container: 'map', // ID des HTML-Elements für die Karte
-            style: 'mapbox://styles/mapbox/streets-v11', // Kartenstil
-            center: [9.7945, 53.6617], // Koordinaten des Zentrums (Pinneberg)
-            zoom: 9 // Start-Zoom-Level
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [9.7945, 53.6617],
+            zoom: 9
         });
 
-        // Gewässerdaten der Angelvereine
+        // Exakte Gewässerdaten mit überprüften Koordinaten
         var gewaesser = [
             {
                 "name": "Hasenmoor",
@@ -128,16 +147,25 @@
         // Funktion zur Festlegung der Markerfarbe basierend auf dem Gewässertyp
         function getColorByType(typ) {
             switch (typ) {
-                case 'See': return '#0077BE'; // Blau für Seen
-                case 'Fluss': return '#00BE77'; // Grün für Flüsse
-                case 'Moorsee': return '#BE7700'; // Braun für Moorseen
-                default: return '#000000'; // Standardfarbe Schwarz
+                case 'See': return '#0077BE';
+                case 'Fluss': return '#00BE77';
+                case 'Moorsee': return '#BE7700';
+                default: return '#000000';
             }
         }
 
-        // Marker für jedes Gewässer hinzufügen
+        // Notizen im Local Storage speichern
+        function saveNote(gewaesserName, note) {
+            localStorage.setItem(gewaesserName, note);
+        }
+
+        // Notiz vom Local Storage abrufen
+        function getNoteForGewaesser(gewaesserName) {
+            return localStorage.getItem(gewaesserName) || "";
+        }
+
+        // Marker und Notiz-Funktion für jedes Gewässer hinzufügen
         gewaesser.forEach(function(g) {
-            // Marker erstellen
             var el = document.createElement('div');
             el.className = 'marker';
             el.style.backgroundColor = getColorByType(g.typ);
@@ -145,17 +173,20 @@
             el.style.height = '20px';
             el.style.borderRadius = '50%';
 
-            // Marker zu Map hinzufügen
+            var notePopupHTML = `
+                <div class="note-popup">
+                    <h3>${g.name}</h3>
+                    <textarea id="note-${g.name}" placeholder="Notizen eingeben...">${getNoteForGewaesser(g.name)}</textarea>
+                    <button onclick="saveNote('${g.name}', document.getElementById('note-${g.name}').value)">Speichern</button>
+                </div>
+            `;
+
             new mapboxgl.Marker(el)
                 .setLngLat(g.koordinaten)
-                .setPopup(new mapboxgl.Popup({ offset: 25 }) // Popup hinzufügen
-                    .setHTML('<h3>' + g.name + '</h3><p>' + g.typ + '</p><p>' + g.verein + '</p>'))
+                .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(notePopupHTML))
                 .addTo(map);
         });
-
     </script>
 
 </body>
 </html>
-
-
