@@ -65,9 +65,10 @@
             background-color: #BE7700;
         }
 
+        /* CSS für das ausklappbare Notizfeld */
         .note-popup {
-            width: 200px;
-            height: 100px;
+            width: 250px;
+            display: none;
         }
 
         .note-popup textarea {
@@ -116,7 +117,7 @@
             zoom: 9
         });
 
-        // Exakte Gewässerdaten mit überprüften Koordinaten
+        // Gewässerdaten für SAV Rellau und andere Vereinsgewässer
         var gewaesser = [
             {
                 "name": "Hasenmoor",
@@ -164,6 +165,12 @@
             return localStorage.getItem(gewaesserName) || "";
         }
 
+        // Notizfeld umschalten
+        function toggleNotePopup(id) {
+            var popup = document.getElementById(id);
+            popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
+        }
+
         // Marker und Notiz-Funktion für jedes Gewässer hinzufügen
         gewaesser.forEach(function(g) {
             var el = document.createElement('div');
@@ -174,16 +181,16 @@
             el.style.borderRadius = '50%';
 
             var notePopupHTML = `
-                <div class="note-popup">
-                    <h3>${g.name}</h3>
+                <div class="note-popup" id="note-popup-${g.name}">
                     <textarea id="note-${g.name}" placeholder="Notizen eingeben...">${getNoteForGewaesser(g.name)}</textarea>
                     <button onclick="saveNote('${g.name}', document.getElementById('note-${g.name}').value)">Speichern</button>
                 </div>
+                <button onclick="toggleNotePopup('note-popup-${g.name}')">Notizen anzeigen</button>
             `;
 
             new mapboxgl.Marker(el)
                 .setLngLat(g.koordinaten)
-                .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(notePopupHTML))
+                .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(`<h3>${g.name}</h3><p>${g.typ}</p><p>${g.verein}</p>${notePopupHTML}`))
                 .addTo(map);
         });
     </script>
