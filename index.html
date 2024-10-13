@@ -65,25 +65,18 @@
             background-color: #BE7700;
         }
 
-        /* CSS für das ausklappbare Notizfeld */
-        .note-popup {
-            width: 250px;
+        .notes {
             display: none;
+            margin-top: 10px;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        .note-popup textarea {
-            width: 100%;
-            height: 80px;
-            margin-bottom: 5px;
-        }
-
-        .note-popup button {
-            width: 100%;
-            background-color: #3B5998;
-            color: white;
-            border: none;
-            padding: 5px;
+        .toggle-notes {
             cursor: pointer;
+            color: #0077BE;
         }
     </style>
 </head>
@@ -91,7 +84,7 @@
 
     <header>
         <h1>Interaktive Angelkarte Pinneberg</h1>
-        <p>Wähle ein Gewässer aus, um mehr Informationen zu erhalten und Notizen zu machen.</p>
+        <p>Wähle ein Gewässer aus, um mehr Informationen zu erhalten.</p>
     </header>
 
     <div id="map"></div>
@@ -107,6 +100,7 @@
     <!-- Mapbox JS -->
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
     <script>
+        // API-Key von Mapbox einfügen
         mapboxgl.accessToken = 'pk.eyJ1IjoibHNhZWQ0ODYiLCJhIjoiY20yNmxsNGZkMHhqbTJrc2o0dWg1OTRuYyJ9.iwQkgt5FL8kPQgpBozsakQ';
 
         // Karte initialisieren
@@ -117,31 +111,97 @@
             zoom: 9
         });
 
-        // Gewässerdaten für SAV Rellau und andere Vereinsgewässer
+        // Gewässerdaten
         var gewaesser = [
             {
-                "name": "Hasenmoor",
-                "typ": "Moorsee",
-                "verein": "SAV Rellau e.V.",
-                "koordinaten": [9.8303, 53.6859]
-            },
-            {
-                "name": "Pinnau",
-                "typ": "Fluss",
-                "verein": "SAV Elmshorn-Barmstedt e.V.",
-                "koordinaten": [9.7121, 53.7033]
+                "name": "Alsensee",
+                "typ": "See",
+                "verein": "SAV Rellau",
+                "koordinaten": [9.6700, 53.6826]
             },
             {
                 "name": "Appener See",
                 "typ": "See",
-                "verein": "SAV Moorrege e.V.",
-                "koordinaten": [9.7895, 53.6512]
+                "verein": "SAV Rellau",
+                "koordinaten": [9.7486, 53.6350]
             },
             {
-                "name": "Düpenau",
+                "name": "Distel I",
+                "typ": "Teich",
+                "verein": "SAV Rellau",
+                "koordinaten": [9.7465, 53.6341]
+            },
+            {
+                "name": "Distel II",
+                "typ": "Teich",
+                "verein": "SAV Rellau",
+                "koordinaten": [9.7462, 53.6338]
+            },
+            {
+                "name": "Freudenthaler See",
+                "typ": "See",
+                "verein": "SAV Rellau",
+                "koordinaten": [9.6541, 53.7660]
+            },
+            {
+                "name": "Funkturmsee",
+                "typ": "See",
+                "verein": "SAV Rellau",
+                "koordinaten": [9.7958, 53.6667]
+            },
+            {
+                "name": "Hasenmoor",
+                "typ": "Teich",
+                "verein": "SAV Rellau",
+                "koordinaten": [9.7856, 53.6571]
+            },
+            {
+                "name": "Heidgraben",
                 "typ": "Fluss",
-                "verein": "SAV Moorrege e.V.",
-                "koordinaten": [9.8031, 53.6670]
+                "verein": "SAV Rellau",
+                "koordinaten": [9.7026, 53.6895]
+            },
+            {
+                "name": "Kieskuhle Appen",
+                "typ": "Teich",
+                "verein": "SAV Rellau",
+                "koordinaten": [9.7425, 53.6342]
+            },
+            {
+                "name": "Moorkuhle",
+                "typ": "Teich",
+                "verein": "SAV Rellau",
+                "koordinaten": [9.7450, 53.6340]
+            },
+            {
+                "name": "Ossenpadd",
+                "typ": "Teich",
+                "verein": "SAV Rellau",
+                "koordinaten": [9.7967, 53.6628]
+            },
+            {
+                "name": "Schnelsener Moor",
+                "typ": "Fluss",
+                "verein": "SAV Rellau",
+                "koordinaten": [9.8991, 53.6298]
+            },
+            {
+                "name": "Teich Bevern",
+                "typ": "Teich",
+                "verein": "SAV Rellau",
+                "koordinaten": [9.7154, 53.7230]
+            },
+            {
+                "name": "Teufelssee",
+                "typ": "Teich",
+                "verein": "SAV Rellau",
+                "koordinaten": [9.8903, 53.6775]
+            },
+            {
+                "name": "Waldenau-Klövensteen",
+                "typ": "Fluss",
+                "verein": "SAV Rellau",
+                "koordinaten": [9.7879, 53.6486]
             }
         ];
 
@@ -150,29 +210,14 @@
             switch (typ) {
                 case 'See': return '#0077BE';
                 case 'Fluss': return '#00BE77';
-                case 'Moorsee': return '#BE7700';
+                case 'Teich': return '#BE7700';
                 default: return '#000000';
             }
         }
 
-        // Notizen im Local Storage speichern
-        function saveNote(gewaesserName, note) {
-            localStorage.setItem(gewaesserName, note);
-        }
-
-        // Notiz vom Local Storage abrufen
-        function getNoteForGewaesser(gewaesserName) {
-            return localStorage.getItem(gewaesserName) || "";
-        }
-
-        // Notizfeld umschalten
-        function toggleNotePopup(id) {
-            var popup = document.getElementById(id);
-            popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
-        }
-
-        // Marker und Notiz-Funktion für jedes Gewässer hinzufügen
+        // Marker für jedes Gewässer hinzufügen
         gewaesser.forEach(function(g) {
+            // Marker erstellen
             var el = document.createElement('div');
             el.className = 'marker';
             el.style.backgroundColor = getColorByType(g.typ);
@@ -180,19 +225,24 @@
             el.style.height = '20px';
             el.style.borderRadius = '50%';
 
-            var notePopupHTML = `
-                <div class="note-popup" id="note-popup-${g.name}">
-                    <textarea id="note-${g.name}" placeholder="Notizen eingeben...">${getNoteForGewaesser(g.name)}</textarea>
-                    <button onclick="saveNote('${g.name}', document.getElementById('note-${g.name}').value)">Speichern</button>
-                </div>
-                <button onclick="toggleNotePopup('note-popup-${g.name}')">Notizen anzeigen</button>
-            `;
-
+            // Marker zu Map hinzufügen
             new mapboxgl.Marker(el)
                 .setLngLat(g.koordinaten)
-                .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(`<h3>${g.name}</h3><p>${g.typ}</p><p>${g.verein}</p>${notePopupHTML}`))
+                .setPopup(new mapboxgl.Popup({ offset: 25 })
+                    .setHTML('<h3>' + g.name + '</h3><p>' + g.typ + '</p><p>' + g.verein + '</p>' +
+                             '<div class="toggle-notes">Notizen hinzufügen</div>' +
+                             '<div class="notes" contenteditable="true" placeholder="Notizen hier..."></div>'))
                 .addTo(map);
         });
+
+        // Funktion zum Ausblenden/Einblenden der Notizen
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('toggle-notes')) {
+                const notesDiv = e.target.nextElementSibling;
+                notesDiv.style.display = notesDiv.style.display === 'block' ? 'none' : 'block';
+            }
+        });
+
     </script>
 
 </body>
